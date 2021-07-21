@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 type FormElement = React.FormEvent<HTMLFormElement>;
 interface ITask {
@@ -9,21 +9,30 @@ interface ITask {
 function App(): JSX.Element {
   const [newTask, setNewTask] = useState<string>("");
   const [tasks, setTasks] = useState<ITask[]>([]);
+  const taskInput = useRef<HTMLInputElement>(null);
 
-  const addTask = (name: string) => {
+  const addTask = (name: string):void => {
     const newTasks: ITask[] = [...tasks, { name, done: false }];
     setTasks(newTasks);
   };
 
-  const toggleDoneTask = (i: number) => {
+  const toggleDoneTask = (i: number): void => {
     const newTasks: ITask[] = [...tasks];
     newTasks[i].done = !newTasks[i].done;
+    setTasks(newTasks);
   }
-  const handleSubmit = (e: FormElement) => {
+
+  const removeTask = (i: number): void => {
+    const newTasks: ITask[] = [...tasks];
+    newTasks.splice(i,1);
+    setTasks(newTasks);
+  }
+
+  const handleSubmit = (e: FormElement):void => {
     e.preventDefault();
     addTask(newTask);
-    console.log("tasks :>> ", tasks);
     setNewTask("");
+    taskInput.current?.focus();
   };
 
   return (
@@ -38,6 +47,7 @@ function App(): JSX.Element {
                   type="text"
                   onChange={(e) => setNewTask(e.target.value)}
                   value={newTask}
+                  ref={taskInput}
                   autoFocus
                 />
                 <button className="btn btn-success btn-block mt-2">Save</button>
@@ -52,6 +62,7 @@ function App(): JSX.Element {
                 <button className="btn btn-secondary" onClick={() => toggleDoneTask(i)}>
                   {task.done ? '✓' : '✗' } 
                 </button>
+                <button className="btn btn-secondary" onClick={() => removeTask(i)}>🗑</button>
               </div>
             </div>
           ))}
